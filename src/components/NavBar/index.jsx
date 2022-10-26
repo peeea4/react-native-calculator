@@ -1,3 +1,5 @@
+import {useEffect, useMemo} from 'react';
+
 import {useTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {
@@ -24,6 +26,7 @@ const Stack = createNativeStackNavigator();
 export const NavBar = ({isDark, setIsDark}) => {
   const position = useSharedValue(isDark ? 6 : 34);
   const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [{translateX: position.value}],
@@ -37,9 +40,12 @@ export const NavBar = ({isDark, setIsDark}) => {
     : require('../../../assets/icons/clearAllBlack.png');
   const pressHandler = () => {
     setIsDark(!isDark);
-    position.value = withTiming(isDark ? 6 : 34);
+    position.value = withTiming(position.value === 6 ? 34 : 6);
   };
   const dispatch = useDispatch();
+  useEffect(() => {
+    position.value = isDark ? 6 : 34;
+  }, []);
 
   return (
     <>
@@ -96,8 +102,9 @@ export const NavBar = ({isDark, setIsDark}) => {
                     style={[
                       styles.switch,
                       {
-                        backgroundColor: theme.colors.background,
+                        transform: [{translateX: position}],
                       },
+
                       animatedStyles,
                     ]}></Animated.Text>
                 </TouchableHighlight>
@@ -107,10 +114,7 @@ export const NavBar = ({isDark, setIsDark}) => {
                   }}
                   activeOpacity={0.6}
                   underlayColor={theme.colors.background}>
-                  <Image
-                    source={iconClear}
-                    style={styles.imageClear}
-                  />
+                  <Image source={iconClear} style={styles.imageClear} />
                 </TouchableHighlight>
               </View>
             ),
@@ -130,50 +134,52 @@ export const NavBar = ({isDark, setIsDark}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  imageBtn: {
-    flex: 1,
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  imageClear: {
-    flex: 1,
-    width: 36,
-    height: 36,
-    resizeMode: 'contain',
-  },
-  title: {
-    flex: 1,
-    fontSize: 24,
-    fontFamily: 'Poppins-Medium',
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: 16,
-    paddingRight: 48,
-  },
-  containerSettings: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  switchContainer: {
-    width: 64,
-    height: 28,
-    borderRadius: 15,
-    backgroundColor: '#000',
-    marginRight: 12,
-    justifyContent: 'center',
-  },
-  switch: {
-    width: 22,
-    height: 22,
-    borderRadius: 15,
-    backgroundColor: '#fff',
-  },
-});
+const createStyles = theme =>
+  StyleSheet.create({
+    imageBtn: {
+      flex: 1,
+      width: 30,
+      height: 30,
+      resizeMode: 'contain',
+    },
+    imageClear: {
+      flex: 1,
+      width: 36,
+      height: 36,
+      resizeMode: 'contain',
+    },
+    title: {
+      flex: 1,
+      fontSize: 24,
+      fontFamily: 'Poppins-Medium',
+    },
+    container: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingLeft: 16,
+      paddingRight: 48,
+    },
+    containerSettings: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    switchContainer: {
+      width: 64,
+      height: 28,
+      borderRadius: 15,
+      backgroundColor: '#000',
+      marginRight: 12,
+      justifyContent: 'center',
+    },
+    switch: {
+      width: 22,
+      height: 22,
+      borderRadius: 15,
+      backgroundColor: '#fff',
+      backgroundColor: theme.colors.background,
+    },
+  });
